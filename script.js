@@ -14,13 +14,21 @@ const loadCategories = () => {
     .catch((error) => console.log(error));
 };
 
+const loadCategoriesVideos = (id) => {
+  fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+    .then((response) => response.json())
+    .then((data) => displayVideos(data.category))
+    .catch((error) => console.log(error));
+};
+
 const displayCategories = (data) => {
   const categoriesContainer = document.getElementById("categories-container");
   data.forEach((item) => {
-    const button = document.createElement("button");
-    button.classList = "btn hover:bg-[#FF1F3D] hover:text-white";
-    button.innerText = item.category;
-    categoriesContainer.appendChild(button);
+    const buttonContainer = document.createElement("div");
+    buttonContainer.innerHTML = `
+    <button onclick="loadCategoriesVideos(${item.category_id})" class="btn hover:bg-[#FF1F3D] hover:text-white">${item.category}</button>
+    `;
+    categoriesContainer.appendChild(buttonContainer);
   });
 };
 
@@ -35,6 +43,7 @@ const showVideos = () => {
 };
 const displayVideos = (videos) => {
   const videoContainer = document.getElementById("video-container");
+  videoContainer.innerHTML = "";
   videos.forEach((video) => {
     const div = document.createElement("div");
     div.classList = "card card-compact";
