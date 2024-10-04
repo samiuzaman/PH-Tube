@@ -21,12 +21,28 @@ const loadCategoriesVideos = (id) => {
     .catch((error) => console.log(error));
 };
 
+const loadDetails = async (videoId) => {
+  const url = `https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  displayDetails(data.video);
+};
+
+const displayDetails = (video) => {
+  const detailsContainer = document.getElementById("modal-content");
+  detailsContainer.innerHTML = `
+  <h3 class="text-lg font-bold text-black mb-2">${video.title}</h3>
+  <p>${video.description}</p>
+  `;
+  customModal.showModal();
+};
+
 const displayCategories = (data) => {
   const categoriesContainer = document.getElementById("categories-container");
   data.forEach((item) => {
     const buttonContainer = document.createElement("div");
     buttonContainer.innerHTML = `
-    <button onclick="loadCategoriesVideos(${item.category_id})" class="btn hover:bg-[#FF1F3D] hover:text-white">${item.category}</button>
+    <button onclick="loadCategoriesVideos(${item.category_id})" class="btn hover:bg-[#FF1F3D] focus:bg-[#FF1F3D] hover:text-white focus:text-white">${item.category}</button>
     `;
     categoriesContainer.appendChild(buttonContainer);
   });
@@ -44,6 +60,18 @@ const showVideos = () => {
 const displayVideos = (videos) => {
   const videoContainer = document.getElementById("video-container");
   videoContainer.innerHTML = "";
+  if (videos.length === 0) {
+    videoContainer.classList.remove("grid");
+    videoContainer.innerHTML = `
+    <div class="h-[70vh] w-full flex flex-col justify-center items-center gap-5">
+    <img src="assets/icon.png"/>
+    <h2 class="text-center text-2xl font-bold">No Content Here in this Category</h2>
+    </div>
+    `;
+    return;
+  } else {
+    videoContainer.classList.add("grid");
+  }
   videos.forEach((video) => {
     const div = document.createElement("div");
     div.classList = "card card-compact";
@@ -55,7 +83,7 @@ const displayVideos = (videos) => {
         ${
           video.others.posted_date?.length === 0
             ? ""
-            : `<span class="absolute right-2 bottom-2 bg-black text-white text-xs rounded p-1">${getTimeString(
+            : `<span class="absolute right-2 bottom-2 bg-black text-white text-sm rounded p-1">${getTimeString(
                 video.others.posted_date
               )}</span>`
         }
@@ -76,8 +104,12 @@ const displayVideos = (videos) => {
             ? `<img class="w-5 h-5" src="https://img.icons8.com/?size=100&id=2AuMnRFVB9b1&format=png&color=000000"/>`
             : ""
         }
+        
         </div>
+        <div class="flex justify-start items-center gap-3 mt-2">
         <p class="text-sm font-normal">${video.others.views}</p>
+        <button onclick="loadDetails('${video.video_id}')"> Details</button>
+        </div>
         </div>
     </div>
   </div>
